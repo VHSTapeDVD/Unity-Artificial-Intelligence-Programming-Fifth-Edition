@@ -1,22 +1,34 @@
 using UnityEngine;
 using System.Collections;
 
-public class Sight : Sense
+public class Sight : Wander
 {
     public int FieldOfView = 45;
     public int ViewDistance = 100;
 
     private Transform playerTrans;
     private Vector3 rayDirection;
+    
+    public Aspect.Affiliation targetAffiliation = Aspect.Affiliation.Enemy;
+    public float detectionRate = 1.0f;
+    protected float elapsedTime = 0.0f;
 
-    protected override void Initialize() 
+    protected virtual void Initialize() 
     {
         playerTrans = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
-	// Update is called once per frame
-    protected override void UpdateSense() 
+    void Start()
     {
+        Initialize();
+        base.Start(); // Call Wander's Start
+    }
+
+	// Update is called once per frame
+    void Update() 
+    {
+        base.Update(); // Call Wander's Update for movement
+        
         elapsedTime += Time.deltaTime;
 
         if (elapsedTime >= detectionRate) {
@@ -42,6 +54,7 @@ public class Sight : Sense
                     //Check the aspect
                     if (aspect.affiliation == targetAffiliation)
                     {
+                        GetNextPosition();
                         print("Enemy Detected");
                     }
                 }

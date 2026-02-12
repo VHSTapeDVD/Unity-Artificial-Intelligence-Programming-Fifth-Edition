@@ -21,7 +21,7 @@ public class Wander : MonoBehaviour
     private float minZ = -45.0f;
 
     [SerializeField]
-    private float maxZ = -45.0f;
+    private float maxZ = 45.0f;
 
     [SerializeField]
     private float targetReactionRadius = 5.0f;
@@ -29,16 +29,28 @@ public class Wander : MonoBehaviour
     [SerializeField]
     private float targetVerticalOffset = 0.5f;
 
+    [SerializeField]
+    private float wallDetectionDistance = 2.0f;
+
+    [SerializeField]
+    private LayerMask wallLayer;
+
 	// Use this for initialization
-	void Start () 
+	public void Start () 
     {
         //Get Wander Position
         GetNextPosition();
 	}
 	
 	// Update is called once per frame
-	void Update () 
+	public void Update () 
     {
+        // Check for walls ahead
+        if (IsWallAhead())
+        {
+            GetNextPosition();
+        }
+
         if(Vector3.Distance(tarPos, transform.position) <= targetReactionRadius)
             GetNextPosition();
 
@@ -48,8 +60,21 @@ public class Wander : MonoBehaviour
         transform.Translate(new Vector3(0f, 0f, movementSpeed * Time.deltaTime));
 	}
 
-    void GetNextPosition()
+    public void GetNextPosition()
     {
         tarPos = new Vector3(Random.Range(minX, maxX), targetVerticalOffset, Random.Range(minZ, maxZ));
+    }
+
+    bool IsWallAhead()
+    {
+        RaycastHit hit;
+        Vector3 rayOrigin = transform.position + Vector3.up * 0.5f;
+        
+        // Cast ray forward to detect walls
+        if (Physics.Raycast(rayOrigin, transform.forward, out hit, wallDetectionDistance, wallLayer))
+        {
+            return true;
+        }
+        return false;
     }
 }
